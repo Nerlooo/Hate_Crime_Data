@@ -1,5 +1,5 @@
 """
-Fonctions utilitaires partagées entre les différentes pages et composants.
+Shared utility functions used across pages and components.
 """
 
 import pandas as pd
@@ -8,27 +8,27 @@ from config import MPL_PARAMS, COLORS, NUM_AGENCIES, POP_COVERED
 
 
 def apply_mpl_style() -> None:
-    """Applique la configuration matplotlib globale du projet."""
+    """Apply the project's global matplotlib configuration."""
     plt.rcParams.update(MPL_PARAMS)
 
 
 def print_national_summary(total_row: pd.Series) -> None:
     """
-    Affiche le résumé national dans la console.
+    Display the national summary to console.
 
     Args:
-        total_row: ligne « Total » de t1_detail.
+        total_row: "Total" row from t1_detail.
     """
-    print("\n" + "═" * 55)
-    print("  RÉSUMÉ NATIONAL 2024")
-    print("═" * 55)
-    print(f"  Incidents totaux       : {int(total_row['Incidents']):>8,}")
-    print(f"  Infractions totales    : {int(total_row['Offenses']):>8,}")
-    print(f"  Victimes totales       : {int(total_row['Victims1']):>8,}")
-    print(f"  Auteurs connus         : {int(total_row['Known\noffenders2']):>8,}")
-    print(f"  Agences participantes  : {NUM_AGENCIES:>8,}")
-    print(f"  Population couverte    : {POP_COVERED:>8,}")
-    print("═" * 55)
+    print("\n" + "=" * 55)
+    print("  NATIONAL SUMMARY 2024")
+    print("=" * 55)
+    print(f"  Total incidents        : {int(total_row['Incidents']):>8,}")
+    print(f"  Total offenses         : {int(total_row['Offenses']):>8,}")
+    print(f"  Total victims          : {int(total_row['Victims1']):>8,}")
+    print(f"  Known offenders        : {int(total_row['Known\noffenders2']):>8,}")
+    print(f"  Participating agencies : {NUM_AGENCIES:>8,}")
+    print(f"  Population covered     : {POP_COVERED:>8,}")
+    print("=" * 55)
 
 
 def print_complementary_analyses(
@@ -37,26 +37,26 @@ def print_complementary_analyses(
     total_row: pd.Series,
 ) -> None:
     """
-    Affiche les analyses complémentaires textuelles.
+    Display complementary textual analyses.
 
     Args:
-        t12_states: table 12 nettoyée.
-        t2_clean:   table 2 nettoyée.
-        total_row:  ligne « Total » de t1_detail.
+        t12_states: cleaned table 12.
+        t2_clean:   cleaned table 2.
+        total_row:  "Total" row from t1_detail.
     """
-    print("\n" + "═" * 55)
-    print("  ANALYSES COMPLÉMENTAIRES")
-    print("═" * 55)
+    print("\n" + "=" * 55)
+    print("  COMPLEMENTARY ANALYSES")
+    print("=" * 55)
 
     avg_report = t12_states["reporting_rate"].mean()
     top5_report = t12_states.nlargest(5, "reporting_rate")[
         ["Participating State/Federal", "reporting_rate"]
     ]
-    print(f"\n📍 Taux moyen de signalement des agences : {avg_report:.1f}%")
-    print("  États avec le meilleur taux de signalement :")
+    print(f"\nAverage agency reporting rate: {avg_report:.1f}%")
+    print("  States with best reporting rates:")
     print(top5_report.to_string(index=False))
 
-    print("\n📊 Top 10 États par nombre absolu d'incidents :")
+    print("\nTop 10 States by total incidents:")
     top10 = t12_states.nlargest(10, "Total\nnumber of\nincidents\nreported")[
         ["Participating State/Federal", "Total\nnumber of\nincidents\nreported", "incidents_per_100k"]
     ]
@@ -67,23 +67,23 @@ def print_complementary_analyses(
         "Rape", "Aggravated assault", "Robbery",
     ]
     violent_sum = t2_clean[t2_clean["Offense type"].isin(violent)]["Offenses"].sum()
-    print(f"\n⚠️  Infractions violentes (persons) : {violent_sum:.0f} infractions")
+    print(f"\nViolent offenses (persons): {violent_sum:.0f} offenses")
 
     victims   = int(total_row["Victims1"])
     incidents = int(total_row["Incidents"])
-    print(f"\n👥 Ratio moyen victimes/incident : {victims / incidents:.2f}")
-    print("\n✅ Analyse terminée.")
+    print(f"\nAverage victims per incident: {victims / incidents:.2f}")
+    print("\nAnalysis completed.")
 
 
 def bar_label(ax, bars, fmt: str = "{:,}", offset: float = 15) -> None:
     """
-    Ajoute des étiquettes à droite de barres horizontales.
+    Add labels to the right of horizontal bars.
 
     Args:
-        ax:     axes matplotlib.
-        bars:   résultat de ax.barh().
-        fmt:    format des valeurs.
-        offset: décalage horizontal en unités données.
+        ax:     matplotlib axes.
+        bars:   result of ax.barh().
+        fmt:    format string for values.
+        offset: horizontal offset in data units.
     """
     for bar in bars:
         w = bar.get_width()

@@ -1,42 +1,46 @@
 """
-Point d'entrée principal — FBI Hate Crime Statistics 2024.
-Lance le chargement, le nettoyage et la génération des visualisations.
+Main entry point - FBI Hate Crime Statistics 2024.
+Runs the data pipeline and starts the interactive Dash dashboard.
+
+Usage:
+    python main.py
 """
 
+import os
 import warnings
 warnings.filterwarnings("ignore")
 
-from src.utils.get_data        import load_all
-from src.utils.clean_data      import clean_t1, clean_t2, clean_t9, clean_t10, clean_t12
-from src.utils.common_functions import apply_mpl_style, print_complementary_analyses
-from src.pages.summary         import render_summary
-from src.pages.home            import render_home, save_home
+from config import DB_PATH, DASH_HOST, DASH_PORT, DASH_DEBUG
+from src.utils.get_data   import load_all, save_raw_to_sqlite
+from src.utils.clean_data import (
+    clean_t1, clean_t2, clean_t9, clean_t10, clean_t12,
+    save_cleaned_to_sqlite,
+)
+from src.pages.summary    import render_summary
+from src.dash_app.app     import app
+from src.pages.home       import build_layout
+from src.dash_app.callbacks import register_callbacks
 
 
-def main() -> None:
-    apply_mpl_style()
+def _build_data() -> dict:
+    """
+    Charge et nettoie les données FBI, les persiste dans SQLite.
 
+    Returns:
+        Dictionnaire de DataFrames nettoyés prêts pour le dashboard.
+    """
     # ── 1. Chargement ─────────────────────────────────────────────────────
     raw = load_all()
-    print("Données chargées")
+    save_raw_to_sqlite(raw, DB_PATH)
+    print("Données brutes chargées et sauvegardées en base.")
 
     # ── 2. Nettoyage ──────────────────────────────────────────────────────
-    t1_detail, t1     = clean_t1(raw["t1"])
-    t2_clean          = clean_t2(raw["t2"])
-    t9_race, t9_eth   = clean_t9(raw["t9"])
-    t10_locations     = clean_t10(raw["t10"])
-    t12_states        = clean_t12(raw["t12"])
+    t1_detail, t1   = clean_t1(raw["t1"])
+    t2_clean        = clean_t2(raw["t2"])
+    t9_race, _      = clean_t9(raw["t9"])
+    t10_locations   = clean_t10(raw["t10"])
+    t12_states      = clean_t12(raw["t12"])
 
-    print(f"\n  • Table 1  – {len(t1_detail)} motivations de biais détaillées")
-    print(f"  • Table 2  – {len(t2_clean)} types d'infractions")
-    print(f"  • Table 9  – Profil de {int(t9_race['Total'].sum())} auteurs connus (race)")
-    print(f"  • Table 12 – {len(t12_states)} États analysés")
-    print(f"  • Table 10 – {len(t10_locations)} lieux recensés")
-
-    # ── 3. Résumé national ────────────────────────────────────────────────
-    render_summary(t1_detail)
-
-    # ── 4. Visualisations ─────────────────────────────────────────────────
     data = dict(
         t1_detail=t1_detail, t1=t1,
         t2_clean=t2_clean,
@@ -44,12 +48,27 @@ def main() -> None:
         t10_locations=t10_locations,
         t12_states=t12_states,
     )
-    fig = render_home(data)
-    save_home(fig)
+    save_cleaned_to_sqlite(data, DB_PATH)
+    print("Données nettoyées sauvegardées en base.")
 
-    # ── 5. Analyses complémentaires ───────────────────────────────────────
-    total_row = t1_detail[t1_detail["Bias motivation"] == "Total"].iloc[0]
-    print_complementary_analyses(t12_states, t2_clean, total_row)
+    # ── 3. Résumé console ─────────────────────────────────────────────────
+    render_summary(t1_detail)
+    return data
+
+
+def main() -> None:
+    """Run the data pipeline and start the Dash server."""
+    data = _build_data()
+
+    # 4. Dash layout
+    app.layout = build_layout()
+
+    # 5. Callbacks (interactivity)
+    register_callbacks(data)
+
+    # 6. Start server
+    print(f"\nDashboard available at http://{DASH_HOST}:{DASH_PORT}")
+    app.run(host=DASH_HOST, port=DASH_PORT, debug=DASH_DEBUG)
 
 
 if __name__ == "__main__":

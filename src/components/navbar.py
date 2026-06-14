@@ -1,31 +1,30 @@
 """
-Composant : barre de navigation et mise en page globale de la figure.
+Composant : barre de navigation avec onglets.
 """
 
-import matplotlib.pyplot as plt
-from matplotlib.gridspec import GridSpec
+from dash import dcc, html
+import dash_bootstrap_components as dbc
 
 
-def build_figure_layout(
-    figsize: tuple[int, int] = (22, 28),
-    nrows: int = 4,
-    ncols: int = 2,
-    hspace: float = 0.45,
-    wspace: float = 0.35,
-) -> tuple[plt.Figure, GridSpec]:
+def build_navbar() -> dbc.Container:
     """
-    Crée la figure et retourne la grille de sous-graphiques.
-
-    Args:
-        figsize: dimensions de la figure en pouces.
-        nrows:   nombre de lignes de la grille.
-        ncols:   nombre de colonnes de la grille.
-        hspace:  espacement vertical entre sous-graphiques.
-        wspace:  espacement horizontal entre sous-graphiques.
+    Construit la barre de navigation par onglets du dashboard.
 
     Returns:
-        (fig, gs) : figure et GridSpec prêts à recevoir les axes.
+        Composant Dash contenant les onglets de navigation.
     """
-    fig = plt.figure(figsize=figsize)
-    gs  = fig.add_gridspec(nrows, ncols, hspace=hspace, wspace=wspace)
-    return fig, gs
+    return dbc.Container(
+        dbc.Tabs(
+            id="main-tabs",
+            active_tab="tab-biais",
+            children=[
+                dbc.Tab(label="Bias Motivations", tab_id="tab-biais"),
+                dbc.Tab(label="Offense Types", tab_id="tab-infractions"),
+                dbc.Tab(label="Geographic Analysis", tab_id="tab-geo"),
+                dbc.Tab(label="Offender Profile", tab_id="tab-auteurs"),
+            ],
+            className="mb-3",
+        ),
+        fluid=True,
+        className="px-4",
+    )

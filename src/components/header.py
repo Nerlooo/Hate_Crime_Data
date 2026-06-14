@@ -1,22 +1,36 @@
 """
-Composant : en-tête de la figure principale.
+Composant : en-tête Dash du dashboard.
 """
 
-import matplotlib.pyplot as plt
-from config import COLORS
+from dash import html
+import dash_bootstrap_components as dbc
+from config import NUM_AGENCIES, POP_COVERED
 
 
-def add_figure_title(fig: plt.Figure) -> None:
+def build_header() -> dbc.Container:
     """
-    Ajoute le titre principal centré en haut de la figure.
+    Construit l'en-tête principal du dashboard.
 
-    Args:
-        fig: figure matplotlib cible.
+    Returns:
+        Composant Dash contenant titre + sous-titre.
     """
-    fig.suptitle(
-        "FBI Hate Crime Statistics 2024 — Analyse Complète",
-        fontsize=20,
-        fontweight="bold",
-        color=COLORS["secondary"],
-        y=0.98,
+    return dbc.Container(
+        dbc.Row(
+            dbc.Col(
+                html.Div([
+                    html.H1(
+                        "FBI Hate Crime Statistics 2024",
+                        className="text-white fw-bold mb-1",
+                    ),
+                    html.P(
+                        f"Analysis | {NUM_AGENCIES:,} participating agencies | "
+                        f"Population covered: {POP_COVERED:,}",
+                        className="text-white-50 mb-0",
+                    ),
+                ]),
+                width=12,
+            )
+        ),
+        fluid=True,
+        className="bg-dark py-3 px-4 mb-4",
     )

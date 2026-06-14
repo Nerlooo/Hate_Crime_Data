@@ -1,24 +1,38 @@
 """
-Composant : pied de figure avec la source et les métadonnées.
+Composant : pied de page du dashboard.
 """
 
-import matplotlib.pyplot as plt
-from config import COLORS, NUM_AGENCIES, POP_COVERED
+from dash import html
+import dash_bootstrap_components as dbc
+from config import NUM_AGENCIES, POP_COVERED
 
 
-def add_figure_footer(fig: plt.Figure) -> None:
+def build_footer() -> dbc.Container:
     """
-    Ajoute la mention de source en bas de la figure.
+    Construit le pied de page avec la source des données.
 
-    Args:
-        fig: figure matplotlib cible.
+    Returns:
+        Composant Dash de pied de page.
     """
-    fig.text(
-        0.5, 0.01,
-        f"Source : FBI Uniform Crime Reporting — Hate Crime Statistics 2024  |  "
-        f"{NUM_AGENCIES:,} agences participantes  |  "
-        f"Population couverte : {POP_COVERED:,}",
-        ha="center",
-        fontsize=9,
-        color=COLORS["neutral"],
+    return dbc.Container(
+        dbc.Row(
+            dbc.Col(
+                html.P(
+                    [
+                        "Source: ",
+                        html.A(
+                            "FBI Uniform Crime Reporting - Hate Crime Statistics 2024",
+                            href="https://ucr.fbi.gov/hate-crime/2024",
+                            target="_blank",
+                        ),
+                        f" | {NUM_AGENCIES:,} agencies | "
+                        f"Population covered: {POP_COVERED:,}",
+                    ],
+                    className="text-muted small text-center mb-0",
+                ),
+                width=12,
+            )
+        ),
+        fluid=True,
+        className="border-top py-3 mt-4 px-4",
     )

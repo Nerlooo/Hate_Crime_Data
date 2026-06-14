@@ -1,5 +1,5 @@
 """
-Composant spécifique : taux de crimes haineux par État (pour 100 000 habitants).
+Component: hate crime rate by state (per 100,000 population).
 """
 
 import pandas as pd
@@ -9,12 +9,12 @@ from config import COLORS
 
 def plot_states_rate(ax, t12_states: pd.DataFrame) -> None:
     """
-    Trace un graphique en barres horizontales des 15 États avec le taux
-    d'incidents pour 100 000 habitants le plus élevé.
+    Plot a horizontal bar chart of the top 15 states with the highest
+    incident rate per 100,000 population.
 
     Args:
-        ax:         axes matplotlib sur lequel tracer.
-        t12_states: DataFrame Table 12 nettoyé.
+        ax:         matplotlib axes to plot on.
+        t12_states: Cleaned DataFrame Table 12.
     """
     top_states  = t12_states.nlargest(15, "incidents_per_100k").sort_values(
         "incidents_per_100k"
@@ -37,12 +37,12 @@ def plot_states_rate(ax, t12_states: pd.DataFrame) -> None:
             va="center", fontsize=9,
         )
 
-    ax.set_xlabel("Incidents pour 100 000 habitants")
+    ax.set_xlabel("Incidents per 100,000 population")
     ax.set_title(
-        "Top 15 États — Taux de crimes haineux pour 100 000 hab.",
+        "Top 15 States - Hate Crime Rate per 100,000 Population",
         fontweight="bold",
     )
 
-    patch_h = mpatches.Patch(color=COLORS["highlight"], label="> 5 pour 100k")
-    patch_s = mpatches.Patch(color=COLORS["secondary"], label="≤ 5 pour 100k")
+    patch_h = mpatches.Patch(color=COLORS["highlight"], label="> 5 per 100k")
+    patch_s = mpatches.Patch(color=COLORS["secondary"], label="<= 5 per 100k")
     ax.legend(handles=[patch_h, patch_s], loc="lower right")

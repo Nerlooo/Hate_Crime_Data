@@ -2,10 +2,18 @@
 Configuration globale du projet FBI Hate Crime Statistics 2024.
 """
 
+import os
+
 # ── Chemins ────────────────────────────────────────────────────────────────
-DATA_DIR   = "data/hate_crime_2024/"
-IMAGES_DIR = "images/"
-OUTPUT_PNG = "images/hate_crime_2024_analyse.png"
+DATA_DIR    = "data/hate_crime_2024/"
+IMAGES_DIR  = "images/"
+OUTPUT_PNG  = "images/hate_crime_2024_analyse.png"
+DB_PATH     = "data/db.sqlite"
+
+# ── Dash ───────────────────────────────────────────────────────────────────
+DASH_HOST   = "127.0.0.1"
+DASH_PORT   = 8050
+DASH_DEBUG  = False
 
 # ── Palette de couleurs ────────────────────────────────────────────────────
 COLORS = {
@@ -17,7 +25,7 @@ COLORS = {
     "palette":   ["#C0392B", "#2980B9", "#27AE60", "#E67E22", "#8E44AD", "#16A085"],
 }
 
-# ── Paramètres matplotlib ──────────────────────────────────────────────────
+# ── Paramètres matplotlib (toujours utilisé pour export PNG si besoin) ─────
 MPL_PARAMS = {
     "figure.facecolor": "#FAFAFA",
     "axes.facecolor":   "#FAFAFA",
